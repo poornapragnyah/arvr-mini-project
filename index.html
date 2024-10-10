@@ -60,51 +60,17 @@
             if (isTHeldDown) {
             const { lng, lat } = e.lngLat;
             console.log(lng, lat);
-
-            // Show 3D map and hide 2D map
-            document.getElementById('map3d').style.display = 'block';
-            document.getElementById('map2d').style.display = 'none';
-
             // Center 3D map on clicked location with a detailed street-level view
-            map3d.flyTo({
+            map2d.flyTo({
                 center: [lng, lat],
                 zoom: 20, // Higher zoom level for close-up view
                 pitch: 0, // Parallel to the ground
                 bearing: 0, // No rotation
                 essential: true
             });
-            
-            // Add return button only when in 3D view
-            if (!isIn3d) {
-                addReturnButton();
-                isIn3d = true;
-            }
+
             }
         });
-
-        // Add navigation control to 3D map
-        map3d.addControl(new maplibregl.NavigationControl());
-        let isIn3d = false;
-        let returnButton;
-
-        // Optional: Add a button to return to 2D view
-        const addReturnButton = () => {
-            if (!returnButton) {
-            returnButton = document.createElement('button');
-            returnButton.textContent = 'Return to 2D';
-            returnButton.style.position = 'absolute';
-            returnButton.style.top = '10px';
-            returnButton.style.left = '10px';
-            returnButton.style.zIndex = '1';
-            returnButton.onclick = () => {
-                document.getElementById('map2d').style.display = 'block';
-                document.getElementById('map3d').style.display = 'none';
-                returnButton.remove();
-                isIn3d = false;
-            };
-            document.body.appendChild(returnButton);
-            }
-        };
 
     </script>
 </body>
