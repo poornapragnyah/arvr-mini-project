@@ -7,74 +7,105 @@
     <script src="https://cdn.maptiler.com/maplibre-gl-js/v2.4.0/maplibre-gl.js"></script>
     <link href="https://cdn.maptiler.com/maplibre-gl-js/v2.4.0/maplibre-gl.css" rel="stylesheet" />
     <style>
-        body { margin: 0; padding: 0; }
-        #map2d, #map3d { position: absolute; top: 0; bottom: 0; width: 100%; }
+        body { margin: 0; padding: 0;  width: 100%;
+            height: 100%;}
+        #map2d, #map3d { position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; }
         #map3d { display: none; }
     </style>
 </head>
 <body>
     <div id="map2d"></div>
-    <div id="map3d"></div>
+    <div id="map3d" style="height: 100%; width: 100%;"></div>
 
     <script>
         const key = 'TYcxqv8siNgZKa83cGg9';
         const style2D = 'https://api.maptiler.com/maps/streets/style.json';
-        const style3D = 'https://api.maptiler.com/maps/streets/style.json'; // Same style for 3D view
+        const style3D = "https://api.maptiler.com/maps/streets/style.json"; // Same style for 3D view
 
         // Initialize 2D map
         const map2d = new maplibregl.Map({
             container: 'map2d',
             style: `${style2D}?key=${key}`,
-            center: [0, 0],
-            zoom: 12
+            center: [77.58337244021612,12.96964725952364],
+            zoom: 8
+        });
+        let isTHeldDown = false;
+
+        // Event listener for keydown
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 't') {
+                isTHeldDown = true;
+            }
         });
 
+        // Event listener for keyup
+        document.addEventListener('keyup', (e) => {
+            if (e.key.toLowerCase() === 't') {
+                isTHeldDown = false;
+            }
+        });
         // Initialize 3D map (hidden initially)
         const map3d = new maplibregl.Map({
             container: 'map3d',
             style: `${style3D}?key=${key}`,
-            center: [77.53531, 16.97], // Initial center position
-            zoom: 16.97, // Initial zoom level
-            pitch: 0, // Parallel to the ground
+            center: [0,0], // Initial center position
+            zoom: 1, // Initial zoom level
+            pitch: 180, // Parallel to the ground
             bearing: 0 // No rotation
         });
 
         // Click event handler for 2D map
         map2d.on('click', (e) => {
             // Check if the 'T' key is held down during the click
-            if (e.originalEvent.shiftKey) { // Changed to check for shift key
-                const { lng, lat } = e.lngLat;
+            if (isTHeldDown) {
+            const { lng, lat } = e.lngLat;
+            console.log(lng, lat);
 
-                // Show 3D map and hide 2D map
-                document.getElementById('map3d').style.display = 'block';
-                document.getElementById('map2d').style.display = 'none';
+            // Show 3D map and hide 2D map
+            document.getElementById('map3d').style.display = 'block';
+            document.getElementById('map2d').style.display = 'none';
 
-                // Center 3D map on clicked location with a detailed street-level view
-                map3d.flyTo({
-                    center: [lng, lat],
-                    zoom: 20, // Higher zoom level for close-up view
-                    pitch: 0, // Parallel to the ground
-                    bearing: 0, // No rotation
-                    essential: true
-                });
+            // Center 3D map on clicked location with a detailed street-level view
+            map3d.flyTo({
+                center: [lng, lat],
+                zoom: 20, // Higher zoom level for close-up view
+                pitch: 0, // Parallel to the ground
+                bearing: 0, // No rotation
+                essential: true
+            });
+            
+            // Add return button only when in 3D view
+            if (!isIn3d) {
+                addReturnButton();
+                isIn3d = true;
+            }
             }
         });
 
         // Add navigation control to 3D map
         map3d.addControl(new maplibregl.NavigationControl());
+        let isIn3d = false;
+        let returnButton;
 
         // Optional: Add a button to return to 2D view
-        const returnButton = document.createElement('button');
-        returnButton.textContent = 'Return to 2D';
-        returnButton.style.position = 'absolute';
-        returnButton.style.top = '10px';
-        returnButton.style.left = '10px';
-        returnButton.style.zIndex = '1';
-        returnButton.onclick = () => {
-            document.getElementById('map2d').style.display = 'block';
-            document.getElementById('map3d').style.display = 'none';
+        const addReturnButton = () => {
+            if (!returnButton) {
+            returnButton = document.createElement('button');
+            returnButton.textContent = 'Return to 2D';
+            returnButton.style.position = 'absolute';
+            returnButton.style.top = '10px';
+            returnButton.style.left = '10px';
+            returnButton.style.zIndex = '1';
+            returnButton.onclick = () => {
+                document.getElementById('map2d').style.display = 'block';
+                document.getElementById('map3d').style.display = 'none';
+                returnButton.remove();
+                isIn3d = false;
+            };
+            document.body.appendChild(returnButton);
+            }
         };
-        document.body.appendChild(returnButton);
+
     </script>
 </body>
 </html>
