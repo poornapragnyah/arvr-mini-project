@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <link href="https://cdn.osmbuildings.org/4.0.0/OSMBuildings.css" rel="stylesheet">
+        <script src="https://cdn.osmbuildings.org/4.0.0/OSMBuildings.js"></script>
+      </head>
+      <body>
+          <div id="map" style="width: 100vw; height: 100vh;"></div>
+
+          <script src=https://rawgit.com/OSMBuildings/OSMBuildings/master/dist/OSMBuildings/OSMBuildings.js></script> 
+          
+          <script>
+var map = new OSMBuildings({
+  container: 'map',
+  position: { latitude: 52.52128, longitude: 13.40894 },
+  zoom: 16,
+  minZoom: 15,
+  maxZoom: 20,
+  tilt: 40,
+  rotation: 300,
+  effects: ['shadows'],
+  attribution: '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © Map <a href="https://mapbox.com/">Mapbox</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
+});
+
+//var osmb = new OSMBuildings(map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+map.addMapTiles('https://tile-a.openstreetmap.fr/hot/{z}/{x}/{y}.png');
+map.addGeoJSONTiles('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+//map.addGeoJSONTiles('https://cors-anywhere.herokuapp.com/https://d.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+
+let rotation = 0;
+
+function rotate () {
+  map.setRotation(rotation);
+  rotation = (rotation+1) % 360;
+  requestAnimationFrame(rotate);
+}
+</script>
+</body>
+            </html>
