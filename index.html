@@ -11,12 +11,12 @@
         <script>
             var map = new OSMBuildings({
                 container: 'map',
-                position: { latitude: 52.52128, longitude: 13.40894 }, // Starting position
+                position: { latitude: 12.96964725952364, longitude: 77.58337244021612 }, // Starting position
                 zoom: 16,
                 minZoom: 15,
                 maxZoom: 20,
                 tilt: 40, 
-                rotation:300,
+                rotation: 300,
                 effects: ['shadows'],
                 attribution: '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © Map <a href="https://mapbox.com/">Mapbox</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
             });
@@ -24,51 +24,116 @@
             map.addMapTiles('https://tile-a.openstreetmap.fr/hot/{z}/{x}/{y}.png');
             map.addGeoJSONTiles('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
 
-            let rotationSpeed = 5;  // Speed of rotation (degrees per key press)
-            let position = { latitude: 52.52128, longitude: 13.40894 }; // Store current position
-            let movementSpeed = 0.0005; // Movement speed for each key press
+            let position = { latitude: 12.96964725952364, longitude:77.58337244021612 }; // Store current position
+            let movementSpeed = 0.0000005; // Movement speed for smooth transition
+            let rotationSpeed = 0.1; // Rotation speed for smooth transition
+            let zoomSpeed = 0.005; // Zoom speed for smooth transition
+            let tiltSpeed = 1; // Tilt speed for smooth transition
 
-            // Key handling for movement and rotation
-            document.addEventListener('keydown', function(e) {
-                switch (e.key) {
-                    case 'ArrowUp': // Up arrow or 'W'
-                    case 'w':
-                        position.latitude += movementSpeed; // Move north
+            let isMoving = false; // To control if movement is happening
+            let currentMovement = null; // Store current movement type
+
+            function smoothTransition() {
+                if (!isMoving) return;
+                
+                switch (currentMovement) {
+                    case 'moveNorth':
+                        position.latitude += movementSpeed;
                         break;
-                    case 'ArrowDown': // Down arrow or 'S'
-                    case 's':
-                        position.latitude -= movementSpeed; // Move south
+                    case 'moveSouth':
+                        position.latitude -= movementSpeed;
                         break;
-                    case 'ArrowLeft': // Left arrow or 'A'
-                    case 'a':
-                        position.longitude -= movementSpeed; // Move west
+                    case 'moveWest':
+                        position.longitude -= movementSpeed;
                         break;
-                    case 'ArrowRight': // Right arrow or 'D'
-                    case 'd':
-                        position.longitude += movementSpeed; // Move east
+                    case 'moveEast':
+                        position.longitude += movementSpeed;
                         break;
-                    case 'r': // Rotate right
-                        map.setRotation(map.getRotation() + rotationSpeed);
-                        break;
-                    case 'l': // Rotate left
+                    case 'rotateLeft':
                         map.setRotation(map.getRotation() - rotationSpeed);
                         break;
-                    case 't': // Toggle tilt
-                        let newTilt = map.getTilt() + 10;
-                        if (newTilt > 40) newTilt = 0; // Reset tilt if it exceeds 40 degrees
-                        map.setTilt(newTilt);
+                    case 'rotateRight':
+                        map.setRotation(map.getRotation() + rotationSpeed);
                         break;
-                    case 'z': // Zoom in
-                        map.setZoom(map.getZoom() + 1);
+                    case 'zoomIn':
+                        map.setZoom(map.getZoom() + zoomSpeed);
                         break;
-                    case 'x': // Zoom out
-                        map.setZoom(map.getZoom() - 1);
+                    case 'zoomOut':
+                        map.setZoom(map.getZoom() - zoomSpeed);
                         break;
+                    // case 'tilt':
+                    //     let newTilt = map.getTilt() + tiltSpeed;
+                    //     if (newTilt > 40) newTilt = 0; // Reset tilt if it exceeds 40 degrees
+                    //     map.setTilt(newTilt);
+                    //     break;
                 }
 
                 // Update map position
                 map.setPosition({ latitude: position.latitude, longitude: position.longitude });
+                
+                requestAnimationFrame(smoothTransition); // Continue the smooth transition
+            }
+
+            document.addEventListener('keydown', function(e) {
+                switch (e.key) {
+                    case 'ArrowUp': // Move north
+                    case 'w':
+                        isMoving = true;
+                        currentMovement = 'moveNorth';
+                        smoothTransition();
+                        break;
+                    case 'ArrowDown': // Move south
+                    case 's':
+                        isMoving = true;
+                        currentMovement = 'moveSouth';
+                        smoothTransition();
+                        break;
+                    case 'ArrowLeft': // Move west
+                    case 'a':
+                        isMoving = true;
+                        currentMovement = 'moveWest';
+                        smoothTransition();
+                        break;
+                    case 'ArrowRight': // Move east
+                    case 'd':
+                        isMoving = true;
+                        currentMovement = 'moveEast';
+                        smoothTransition();
+                        break;
+                    case 'j': // Rotate clockwise
+                        isMoving = true;
+                        currentMovement = 'rotateRight';
+                        smoothTransition();
+                        break;
+                    case 'l': // Rotate counterclockwise
+                        isMoving = true;
+                        currentMovement = 'rotateLeft';
+                        smoothTransition();
+                        break;
+                    case 'q': // Zoom in
+                        isMoving = true;
+                        currentMovement = 'zoomIn';
+                        smoothTransition();
+                        break;
+                    case 'r': // Zoom out
+                        isMoving = true;
+                        currentMovement = 'zoomOut';
+                        smoothTransition();
+                        break;
+                    case 't': // Tilt
+                        isMoving = true;
+                        let newTilt = map.getTilt() + tiltSpeed;
+                        if (newTilt > 40) newTilt = 0; // Reset tilt if it exceeds 40 degrees
+                        map.setTilt(newTilt);
+                        break;
+                }
             });
+
+            document.addEventListener('keyup', function() {
+                isMoving = false; // Stop movement when key is released
+            });
+
+            
         </script>
     </body>
 </html>
